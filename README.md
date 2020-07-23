@@ -11,6 +11,7 @@ Dux is a simpler and more performant version of [Redux](https://redux.js.org). I
 const store = dux.createStore(reducer, initialState)
 
 /*** Getting state values ***/
+let currentstate = store.getState()
 /* Reacts to state changes to always get current value */
 store.get('field', value => {
   // function is called every time field is updated
