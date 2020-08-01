@@ -6,14 +6,20 @@ Dux is a simpler and more performant version of [Redux](https://redux.js.org). I
 
 ## Usage
 
+A Dux store has a very simple interface:
+
+1. `get()` gets the current value of a field in the state
+2. `act()` sends an action to update the fields in the state
+3. `react()` is called whenever a particular field is updated
+
 ```javascript
 /*** Creation ***/
 const store = dux.createStore(reducer, initialState)
 
 /*** Getting whole state ***/
-let currentstate = store.getState()
+let currentstate = store.get()
 /*** Reacting to whole state ***/
-store.subscribe(() => ....)
+store.react(() => ....)
 
 /*** Get a particular value ***/
 let value = store.get('field')
@@ -26,7 +32,7 @@ store.react('path.from.root.to.field', value => {
 })
 
 /*** Actions to change state ***/
-store.dispatch(type, payload)
+store.act(type, payload)
 ```
 
 ### Example
@@ -42,11 +48,10 @@ const store = dux.createStore(reducer, {
   current: 0,
 })
 
-store.subscribe(() => console.log(store.getState()))
-
+store.react(() => console.log(store.get()))
 
 let inc = document.getElementById('inc')
-inc.onclick = () => store.dispatch('counter/set', store.get('counter') + 1)
+inc.onclick = () => store.act('counter/set', store.get('counter') + 1)
 
 let counterDisp = document.getElementById('counter')
 store.react('counter', counter => {
@@ -54,10 +59,8 @@ store.react('counter', counter => {
 })
 
 let block = document.getElementById('block')
-store.react('current', current => {
-  setBlockColor(store, block)
-})
-block.onclick = () => store.dispatch('current/set', store.get('current') + 1)
+setBlockColor(store, block)
+block.onclick = () => store.act('current/set', store.get('current') + 1)
 
 let blocks = document.getElementById('blocks')
 let num = 0
@@ -99,6 +102,4 @@ function reduceCurrent(current, type, payload) {
   }
 }
 ```
-
-
 
