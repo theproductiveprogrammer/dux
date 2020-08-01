@@ -37,8 +37,6 @@ store.act(type, payload)
 
 ### Example
 
-See the example in [sample.html](./sample.html):
-
 ```javascript
 const store = dux.createStore(reducer, {
   counter: 0,
@@ -104,4 +102,6 @@ function reduceCurrent(current, type, payload) {
   }
 }
 ```
+
+See the example in action in [sample.html](./sample.html):
 
