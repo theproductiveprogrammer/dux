@@ -1,45 +1,72 @@
-# DUX
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Dux Sample</title>
+<style>
+.container {
+  width: 60%;
+  margin: 0 auto;
+  text-align: center;
+}
+.container img {
+  max-width: 128px;
+}
+#inc {
+  width: 20%;
+  padding: 0.5em;
+  margin: 0.5em auto;
+  background: linear-gradient(#f9d114, #d7ad1a);
+  cursor: pointer;
+  box-shadow: 0px 0px 1px 1px #e2a100;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+#inc:hover {
+  box-shadow: 0px 0px 1px 1px #7b5802;
+}
+#block {
+  width: 128px;
+  height: 128px;
+  margin: 1em auto;
+  line-height: 128px;
+  color: white;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+.block {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  display: inline-block;
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  margin: 1px;
+}
+</style>
+</head>
+<body>
+  <div class=container>
 
-Dux is a simpler and more performant version of [Redux](https://redux.js.org). It is simpler to use than [Redux](https://redux.js.org) and easier to understand and tweak.
+    <h1>Dux</h1>
+    <div>
+      <img src="./dux.jpg"></img>
+    </div>
 
-![dux icon](./dux.jpg)
+    <div id=inc>click me</div>
+    <div id=counter>0</div>
+    <div id=block class=block>click me too</div>
+    <div id=blocks>
+    </div>
 
-## Usage
+  </div>
 
-A Dux store has a very simple interface:
+  <script src="./dux.js"></script>
 
-1. `get()` gets the current value of a field in the state
-2. `act()` sends an action to update the fields in the state
-3. `react()` is called whenever a particular field is updated
-
-```javascript
-/*** Creation ***/
-const store = dux.createStore(reducer, initialState)
-
-/*** Getting whole state ***/
-let currentstate = store.get()
-/*** Reacting to whole state ***/
-store.react(() => ....)
-
-/*** Get a particular value ***/
-let value = store.get('field')
-/*** Getting deep fields ***/
-store.get('path.from.0.root.to.field', value => {})
-
-/*** Reacting to only what interests us ***/
-store.react('path.from.root.to.field', value => {
-  // function is called every time field is updated
-})
-
-/*** Actions to change state ***/
-store.act(type, payload)
-```
-
-### Example
-
-See the example in [sample.html](./sample.html):
-
-```javascript
+<script>
 const store = dux.createStore(reducer, {
   counter: 0,
   colors: [
@@ -103,5 +130,6 @@ function reduceCurrent(current, type, payload) {
     default: return current
   }
 }
-```
-
+</script>
+</body>
+</html>
