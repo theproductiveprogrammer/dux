@@ -10,20 +10,94 @@ Dux is a simpler and more performant version of [Redux](https://redux.js.org). I
 /*** Creation ***/
 const store = dux.createStore(reducer, initialState)
 
-/*** Getting state values ***/
+/*** Getting whole state ***/
 let currentstate = store.getState()
-/* Reacts to state changes to always get current value */
-store.get('field', value => {
+/*** Reacting to whole state ***/
+store.subscribe(() => ....)
+
+/*** Get a particular value ***/
+let value = store.get('field')
+/*** Getting deep fields ***/
+store.get('path.from.0.root.to.field', value => {})
+
+/*** Reacting to only what interests us ***/
+store.react('path.from.root.to.field', value => {
   // function is called every time field is updated
 })
-// Getting deep fields
-store.get('path.from.0.root.to.field', value => {})
-// Getting multiple fields
-store.get(['multiple', 'fields'], [value, value] => {})
 
 /*** Actions to change state ***/
-/* Invokes the reducer and the correct 'get' functions */
-store.act(type, payload)
+store.dispatch(type, payload)
+```
+
+### Example
+
+```javascript
+const store = dux.createStore(reducer, {
+  counter: 0,
+  colors: [
+    { color: "blue" },
+    { color: "green" },
+    { color: "red" },
+  ],
+  current: 0,
+})
+
+store.subscribe(() => console.log(store.getState()))
+
+
+let inc = document.getElementById('inc')
+inc.onclick = () => store.dispatch('counter/set', store.get('counter') + 1)
+
+let counterDisp = document.getElementById('counter')
+store.react('counter', counter => {
+  counterDisp.innerText = counter
+})
+
+let block = document.getElementById('block')
+store.react('current', current => {
+  setBlockColor(store, block)
+})
+block.onclick = () => store.dispatch('current/set', store.get('current') + 1)
+
+let blocks = document.getElementById('blocks')
+let num = 0
+store.react('counter', counter => {
+  while(num < counter) {
+    let block = document.createElement('span')
+    blocks.appendChild(block)
+    setBlockColor(store, block)
+    num++
+  }
+})
+
+function setBlockColor(store, block) {
+  block.className = 'block'
+  store.react('current', current => {
+    let colors = store.get('colors')
+    let color = colors[current % colors.length].color
+    block.style.backgroundColor = color
+  })
+}
+
+function reducer(state, type, payload) {
+  return {
+    colors: state.colors,
+    counter: reduceCounter(state.counter, type, payload),
+    current: reduceCurrent(state.current, type, payload)
+  }
+}
+function reduceCounter(counter, type, payload) {
+  switch(type) {
+    case 'counter/set': return payload
+    default: return counter
+  }
+}
+function reduceCurrent(current, type, payload) {
+  switch(type) {
+    case 'current/set': return payload
+    default: return current
+  }
+}
 ```
 
 
