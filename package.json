@@ -1,6 +1,6 @@
 {
   "name": "@tpp/dux",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Simpler Redux",
   "main": "dux.js",
   "repository": {
