@@ -75,7 +75,7 @@ function createStore(reducer, initialState) {
   function react(p, fn) {
     if(!fn) {
       toplevel.push(p)
-      return
+      return p
     }
     let curr = reactors[p]
     if(!curr) {
@@ -84,12 +84,36 @@ function createStore(reducer, initialState) {
     }
     curr.push(fn)
     fn(get(p))
+    return fn
   }
+
+  /*    way/
+   * Remove the given reacting function from our list
+   * of reactions, removing the path itself if empty
+   */
+  function clear(fn) {
+    let ndx = toplevel.indexOf(fn)
+    if(ndx != -1) {
+      toplevel = toplevel.splice(ndx, 1)
+      return true
+    }
+    for(let p in reactors) {
+      let ndx = reactors[p].indexOf(fn)
+      if(ndx != -1) {
+        if(reactors[p].length == 1) delete reactors[p]
+        else reactors[p].splice(ndx, 1)
+      }
+    }
+    return false
+  }
+
 
   return {
     get,
     act,
     react,
+    clear,
+    //dbg: () => { return { state, toplevel, reactors } }
   }
 }
 
