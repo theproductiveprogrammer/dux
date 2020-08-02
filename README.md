@@ -130,5 +130,5 @@ function reduceBlocks(current, type, payload) {
 }
 ```
 
-See the example in action in [sample.html](./sample.html):
+See the example in action in [sample.html](./sample.html). A slightly different alternative can be seen in [sample2.html](./sample2.html).
 
