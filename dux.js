@@ -11,7 +11,6 @@ function createStore(reducer, initialState) {
 
   let state = initialState
   let reactors = {}
-  let toplevel = []
   let forks = []
 
   /*    way/
@@ -31,15 +30,18 @@ function createStore(reducer, initialState) {
    */
   function invokeReactors(oldstate, state) {
     for(let p in reactors) {
-      let old = get_(oldstate, p)
-      let cur = get_(state, p)
-      if(old != cur) {
-        let fns = reactors[p]
-        for(let i = 0;i < fns.length;i++) fns[i](cur)
+      if(p == '.') react_1(reactors[p], state)
+      else {
+        let old = get_(oldstate, p)
+        let cur = get_(state, p)
+        if(old != cur) react_1(reactors[p], cur)
       }
     }
-    for(let i = 0;i < toplevel.length;i++) toplevel[i]()
     for(let i = 0;i < forks.length;i++) forks[i].invokeReactors(oldstate, state)
+
+    function react_1(fns, cur) {
+      for(let i = 0;i < fns.length;i++) fns[i](cur)
+    }
   }
 
   /*    way/
@@ -71,13 +73,13 @@ function createStore(reducer, initialState) {
 
   /*    way/
    * Add the given function to react when the path changes.
-   * If no path is given (just a function) then add as a
-   * top-level reactor
+   * If no path is given (just a function) then add as a the
+   * special '.' reactor.
    */
   function react(p, fn) {
     if(!fn) {
-      toplevel.push(p)
-      return p
+      fn = p
+      p = '.'
     }
     let curr = reactors[p]
     if(!curr) {
@@ -94,11 +96,6 @@ function createStore(reducer, initialState) {
    * of reactions, removing the path itself if empty
    */
   function unreact(fn) {
-    let ndx = toplevel.indexOf(fn)
-    if(ndx != -1) {
-      toplevel.splice(ndx, 1)
-      return true
-    }
     for(let p in reactors) {
       let ndx = reactors[p].indexOf(fn)
       if(ndx != -1) {
