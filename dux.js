@@ -128,7 +128,6 @@ function createStore(reducer, initialState) {
       unreact,
       fork,
       destroy,
-      dbg: () => { return { state, reactors, forks } }
     }
 
     forks.push({ reactors, fork_ })
@@ -153,7 +152,7 @@ function createStore(reducer, initialState) {
     unreact,
     fork,
     destroy,
-    dbg: () => { return { state, reactors, forks } }
+    //dbg: () => { return { state, reactors, forks } }
   }
 }
 
