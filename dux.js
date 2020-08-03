@@ -26,8 +26,15 @@ function createStore(reducer, initialState) {
 
   /*    way/
    * Invoke the reactors for paths that have changed
+   * and invoke them for all the forks
    */
   function invokeReactors(oldstate, state) {
+    invokeReactors_(oldstate, state, reactors)
+    for(let i = 0;i < forks.length;i++) {
+      invokeReactors_(oldstate, state, forks[i].reactors)
+    }
+  }
+  function invokeReactors_(oldstate, state, reactors) {
     for(let p in reactors) {
       if(p == '.') react_1(reactors[p], state)
       else {
@@ -36,7 +43,6 @@ function createStore(reducer, initialState) {
         if(old != cur) react_1(reactors[p], cur)
       }
     }
-    for(let i = 0;i < forks.length;i++) forks[i].invokeReactors(oldstate, state)
 
     function react_1(fns, cur) {
       for(let i = 0;i < fns.length;i++) fns[i](cur)
@@ -76,6 +82,9 @@ function createStore(reducer, initialState) {
    * special '.' reactor.
    */
   function react(p, fn) {
+    react_(p, fn, reactors)
+  }
+  function react_(p, fn, reactors) {
     if(!fn) {
       fn = p
       p = '.'
@@ -95,6 +104,9 @@ function createStore(reducer, initialState) {
    * of reactions, removing the path itself if empty
    */
   function unreact(fn) {
+    unreact_(fn, reactors)
+  }
+  function unreact_(fn, reactors) {
     for(let p in reactors) {
       let ndx = reactors[p].indexOf(fn)
       if(ndx != -1) {
@@ -108,69 +120,30 @@ function createStore(reducer, initialState) {
 
   function fork() {
     let reactors = {}
-    let toplevel = []
-
-    function react(p, fn) {
-      if(!fn) {
-        toplevel.push(p)
-        return p
-      }
-      let curr = reactors[p]
-      if(!curr) {
-        curr = []
-        reactors[p] = curr
-      }
-      curr.push(fn)
-      fn(get(p))
-      return fn
-    }
-
-    function unreact(fn) {
-      let ndx = toplevel.indexOf(fn)
-      if(ndx != -1) {
-        toplevel.splice(ndx, 1)
-        return true
-      }
-      for(let p in reactors) {
-        let ndx = reactors[p].indexOf(fn)
-        if(ndx != -1) {
-          if(reactors[p].length == 1) delete reactors[p]
-          else reactors[p].splice(ndx, 1)
-        }
-      }
-      return false
-    }
-
-    function invokeReactors(oldstate, state) {
-      for(let p in reactors) {
-        let old = get_(oldstate, p)
-        let cur = get_(state, p)
-        if(old != cur) {
-          let fns = reactors[p]
-          for(let i = 0;i < fns.length;i++) fns[i](cur)
-        }
-      }
-      for(let i = 0;i < toplevel.length;i++) toplevel[i]()
-    }
 
     let fork_ = {
       get,
       act,
-      react,
+      react: (p, fn) => react_(p, fn, reactors),
       unreact,
-      invokeReactors,
+      fork,
+      destroy,
+      dbg: () => { return { state, reactors, forks } }
     }
 
-    forks.push(fork_)
+    forks.push({ reactors, fork_ })
 
     return fork_
   }
 
   function destroy(fork_) {
     if(!fork_) return
-    let ndx = forks.indexOf(fork_)
-    if(ndx == -1) throw "Failed to find fork"
-    forks.splice(ndx, 1)
+    for(let i = 0;i < forks.length;i++) {
+      let curr = forks[i]
+      if(curr.fork_ == fork_) {
+        forks.splice(i, 1)
+      }
+    }
   }
 
   return {
@@ -180,7 +153,7 @@ function createStore(reducer, initialState) {
     unreact,
     fork,
     destroy,
-    //dbg: () => { return { state, toplevel, reactors, forks } }
+    dbg: () => { return { state, reactors, forks } }
   }
 }
 
