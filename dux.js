@@ -26,7 +26,6 @@ function createStore(reducer, initialState) {
 
   /*    way/
    * Invoke the reactors for paths that have changed
-   * and all top-level reactors
    */
   function invokeReactors(oldstate, state) {
     for(let p in reactors) {
