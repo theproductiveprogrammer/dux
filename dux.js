@@ -94,7 +94,7 @@ function createStore(reducer, initialState) {
   function clear(fn) {
     let ndx = toplevel.indexOf(fn)
     if(ndx != -1) {
-      toplevel = toplevel.splice(ndx, 1)
+      toplevel.splice(ndx, 1)
       return true
     }
     for(let p in reactors) {
