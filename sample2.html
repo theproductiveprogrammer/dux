@@ -110,7 +110,7 @@ store.react('counter', counter => {
   if(blocks.length > counter) {
     while(counter < blocks.length) {
       let { block, fn } = blocks.pop()
-      store.clear(fn)
+      store.unreact(fn)
       blockDisp.removeChild(block)
     }
   } else {

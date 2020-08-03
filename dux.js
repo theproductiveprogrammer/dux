@@ -12,6 +12,7 @@ function createStore(reducer, initialState) {
   let state = initialState
   let reactors = {}
   let toplevel = []
+  let forks = []
 
   /*    way/
    * Use the reducer to update the state
@@ -38,6 +39,7 @@ function createStore(reducer, initialState) {
       }
     }
     for(let i = 0;i < toplevel.length;i++) toplevel[i]()
+    for(let i = 0;i < forks.length;i++) forks[i].invokeReactors(oldstate, state)
   }
 
   /*    way/
@@ -91,7 +93,7 @@ function createStore(reducer, initialState) {
    * Remove the given reacting function from our list
    * of reactions, removing the path itself if empty
    */
-  function clear(fn) {
+  function unreact(fn) {
     let ndx = toplevel.indexOf(fn)
     if(ndx != -1) {
       toplevel.splice(ndx, 1)
@@ -108,12 +110,81 @@ function createStore(reducer, initialState) {
   }
 
 
+  function fork() {
+    let reactors = {}
+    let toplevel = []
+
+    function react(p, fn) {
+      if(!fn) {
+        toplevel.push(p)
+        return p
+      }
+      let curr = reactors[p]
+      if(!curr) {
+        curr = []
+        reactors[p] = curr
+      }
+      curr.push(fn)
+      fn(get(p))
+      return fn
+    }
+
+    function unreact(fn) {
+      let ndx = toplevel.indexOf(fn)
+      if(ndx != -1) {
+        toplevel.splice(ndx, 1)
+        return true
+      }
+      for(let p in reactors) {
+        let ndx = reactors[p].indexOf(fn)
+        if(ndx != -1) {
+          if(reactors[p].length == 1) delete reactors[p]
+          else reactors[p].splice(ndx, 1)
+        }
+      }
+      return false
+    }
+
+    function invokeReactors(oldstate, state) {
+      for(let p in reactors) {
+        let old = get_(oldstate, p)
+        let cur = get_(state, p)
+        if(old != cur) {
+          let fns = reactors[p]
+          for(let i = 0;i < fns.length;i++) fns[i](cur)
+        }
+      }
+      for(let i = 0;i < toplevel.length;i++) toplevel[i]()
+    }
+
+    let fork_ = {
+      get,
+      act,
+      react,
+      unreact,
+      invokeReactors,
+    }
+
+    forks.push(fork_)
+
+    return fork_
+  }
+
+  function destroy(fork_) {
+    if(!fork_) return
+    let ndx = forks.indexOf(fork_)
+    if(ndx == -1) throw "Failed to find fork"
+    forks.splice(ndx, 1)
+  }
+
   return {
     get,
     act,
     react,
-    clear,
-    //dbg: () => { return { state, toplevel, reactors } }
+    unreact,
+    fork,
+    destroy,
+    //dbg: () => { return { state, toplevel, reactors, forks } }
   }
 }
 

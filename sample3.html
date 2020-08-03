@@ -78,10 +78,9 @@ const store = dux.createStore(reducer, {
     { color: "red" },
   ],
   current: 0,
-  blocks: [],
 })
 
-store.react(() => console.log(store.get()))
+//store.react(() => console.log(store.get()))
 
 let inc = document.getElementById('inc')
 inc.onclick = () => store.act('counter/set', store.get('counter') + 1)
@@ -95,38 +94,32 @@ store.react('counter', counter => {
 })
 
 let block = document.getElementById('block')
-setBlockColor(store, block)
+block.className = 'block'
+store.react('current', current => {
+  block.style.backgroundColor = getCurrentColor(store)
+})
 block.onclick = () => store.act('current/set', store.get('current') + 1)
 
 let blockDisp = document.getElementById('blocks')
+let substore
 store.react('counter', counter => {
-  if(counter < 0) return
-  let blocks = store.get('blocks')
-  if(blocks.length == counter) return
-  blocks.slice()
-  if(blocks.length > counter) {
-    while(counter < blocks.length) {
-      let { block, fn } = blocks.pop()
-      store.unreact(fn)
-      blockDisp.removeChild(block)
-    }
-  } else {
-    while(blocks.length < counter) {
-      let block = document.createElement('span')
-      blockDisp.appendChild(block)
-      blocks.push({ block, fn: setBlockColor(store, block) })
-    }
+  store.destroy(substore)
+  substore = store.fork()
+  blockDisp.innerHTML = ""
+  for(let i = 0;i < counter;i++) {
+    let block = document.createElement('span')
+    block.className = 'block'
+    substore.react('current', current => {
+        block.style.backgroundColor = getCurrentColor(substore)
+    })
+    blockDisp.appendChild(block)
   }
-  store.act('blocks/set', blocks)
 })
 
-function setBlockColor(store, block) {
-  block.className = 'block'
-  return store.react('current', current => {
-    let colors = store.get('colors')
-    let color = colors[current % colors.length].color
-    block.style.backgroundColor = color
-  })
+function getCurrentColor(store) {
+  let colors = store.get('colors')
+  let current = store.get('current')
+  return colors[current % colors.length].color
 }
 
 function reducer(state, type, payload) {
@@ -134,7 +127,6 @@ function reducer(state, type, payload) {
     colors: state.colors,
     counter: reduceCounter(state.counter, type, payload),
     current: reduceCurrent(state.current, type, payload),
-    blocks: reduceBlocks(state.blocks, type, payload),
   }
 }
 function reduceCounter(counter, type, payload) {
@@ -146,12 +138,6 @@ function reduceCounter(counter, type, payload) {
 function reduceCurrent(current, type, payload) {
   switch(type) {
     case 'current/set': return payload
-    default: return current
-  }
-}
-function reduceBlocks(current, type, payload) {
-  switch(type) {
-    case 'blocks/set': return payload
     default: return current
   }
 }
