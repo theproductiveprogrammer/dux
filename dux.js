@@ -12,15 +12,18 @@ function createStore(reducer, initialState) {
   let state = initialState
   let reactors = {}
   let forks = []
+  let traces
 
   /*    way/
    * Use the reducer to update the state
-   * and invoke the reactors
+   * and invoke the reactors. Keep a trace of the
+   * event if active.
    */
   function event(type, payload) {
     let oldstate = state
     state = reducer(state, type, payload)
     invokeReactors(oldstate, state)
+    if(traces) traces.events.push({ type, payload })
     return state
   }
 
@@ -129,11 +132,13 @@ function createStore(reducer, initialState) {
     let fork_ = {
       get,
       event,
-      eventlog,
       react: (p, fn) => react_(p, fn, reactors),
       unreact,
       fork,
       destroy,
+
+      trace,
+      eventlog,
     }
 
     forks.push({ reactors, fork_ })
@@ -155,6 +160,35 @@ function createStore(reducer, initialState) {
     }
   }
 
+  /*    way/
+   * set up the traces structure so we can capture
+   * all events or clear it if switched off.
+   */
+  function trace(on) {
+    if(on) {
+      traces = {
+        state,
+        events: [],
+      }
+    } else {
+      traces = null
+    }
+  }
+
+  /*    way/
+   * return the events and updated state for each event
+   * in the tracing history
+   */
+  function eventlog(cb) {
+    if(!traces) return cb("TRACING:OFF")
+    let state = traces.state
+    for(let i = 0;i < traces.events.length;i++) {
+      let evt = traces.events[i]
+      state = reducer(state, evt.type, evt.payload)
+      cb(null, { type: evt.type, payload: evt.payload, state })
+    }
+  }
+
   return {
     get,
     event,
@@ -163,6 +197,9 @@ function createStore(reducer, initialState) {
     fork,
     destroy,
     //dbg: () => { return { state, reactors, forks } }
+
+    trace,
+    eventlog,
   }
 }
 
