@@ -47,11 +47,13 @@ store.react('path.from.root.to.field', value => {
 
 ## Events and Reducers
 
-While having interfaces to `get()` values and `react()` to changes is good, there is a glaring problem - how do the values actually get updated?
+While having interfaces to `get()` values and `react()` to changes is good, we still have a problem - how do the values actually get updated?
 
-Conceptually the state of the system changes in response to some events. Each sub-system noticies events happening and informs the store about them. The store then invokes the `reducer` function to injest the event and create a new version of the system state.
+Conceptually we change the state of the system only in response to something *happening*. In other words the state responds to ‘events’.
 
-By convention event types named `domain/event`:
+Each part of the system can raise events about things that have happened to them and inform the store. The store then invokes the `reducer` function to which contains the logic to injest the event and create a new version of the state. `dux` then notices the updated state values and invokes any reactions.
+
+By convention events raised should be named like this -  `domain/event`. For example:
 
 ```javascript
 store.event("todo/completed", { id: 73 })
