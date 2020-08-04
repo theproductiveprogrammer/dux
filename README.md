@@ -59,12 +59,23 @@ By convention events raised should be named like this -  `domain/event`. For exa
 store.event("todo/completed", { id: 73 })
 ```
 
-### Event History
+## Debugging & Tracing
 
-It can be helpful for debugging to see the what exactly has happened step-by-step to get to the current point. To aid in this, `dux` saves the last 1000 events and their corresponding states.
+It can be helpful for debugging to see the what exactly has happened step-by-step to get to the current point. To aid in this, `dux` provides a `trace()` function that keeps track of all events and states efficiently until you turn it off:
 
 ```javascript
-store.eventlog()
+store.trace(true)
+...
+store.eventlog((err, log) => console.log(log))
+// {type: "block/clicked", payload: undefined, state: {…}}
+// {type: "dec/clicked", payload: undefined, state: {…}}
+// {type: "blocks/updated", payload: Array(7), state: {…}}
+// {type: "inc/clicked", payload: undefined, state: {…}}
+// {type: "blocks/updated", payload: Array(8), state: {…}}
+// {type: "inc/clicked", payload: undefined, state: {…}}
+// {type: "blocks/updated", payload: Array(9), state: {…}}
+...
+store.trace(false)
 ```
 
 ## Cleaning Reactions
