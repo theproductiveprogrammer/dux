@@ -15,15 +15,16 @@ function createStore(reducer, initialState) {
   let traces
 
   /*    way/
-   * Use the reducer to update the state
-   * and invoke the reactors. Keep a trace of the
-   * event if active.
+   * Keep a trace of the event if required then
+   * use the reducer to update the state and 
+   * invoke the reactors
    */
   function event(type, payload) {
+    if(traces) traces.events.push({ type, payload })
+
     let oldstate = state
     state = reducer(state, type, payload)
     invokeReactors(oldstate, state)
-    if(traces) traces.events.push({ type, payload })
     return state
   }
 
