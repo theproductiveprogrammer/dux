@@ -82,7 +82,7 @@ function createStore(reducer, initialState) {
    * special '.' reactor.
    */
   function react(p, fn) {
-    react_(p, fn, reactors)
+    return react_(p, fn, reactors)
   }
   function react_(p, fn, reactors) {
     if(!fn) {
