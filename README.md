@@ -23,7 +23,6 @@ const dux = require(""@tpp/dux")
 A Dux store has a very simple interface:
 
 1. `get()` gets the current value of a field in the state
-2. `act()` sends an action to update the fields in the state
 3. `react()` is called whenever a particular field is updated
 
 ```javascript
@@ -44,9 +43,26 @@ store.get('path.from.0.root.to.field', value => {})
 store.react('path.from.root.to.field', value => {
   // function is called every time field is updated
 })
+```
 
-/*** Actions to change state ***/
-store.act(type, payload)
+## Events and Reducers
+
+While having interfaces to `get()` values and `react()` to changes is good, there is a glaring problem - how do the values actually get updated?
+
+Conceptually the state of the system changes in response to some events. Each sub-system noticies events happening and informs the store about them. The store then invokes the `reducer` function to injest the event and create a new version of the system state.
+
+By convention event types named `domain/event`:
+
+```javascript
+store.event("todo/completed", { id: 73 })
+```
+
+### Event History
+
+It can be helpful for debugging to see the what exactly has happened step-by-step to get to the current point. To aid in this, `dux` saves the last 1000 events and their corresponding states.
+
+```javascript
+store.eventlog()
 ```
 
 ## Cleaning Reactions
