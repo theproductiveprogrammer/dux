@@ -92,11 +92,11 @@ store.react(() => console.log(store.get()))
 
 /* increment button */
 let inc = document.getElementById('inc')
-inc.onclick = () => store.act('counter/set', store.get('counter') + 1)
+inc.onclick = () => store.event('inc/clicked')
 
 /* decrement button */
 let dec = document.getElementById('dec')
-dec.onclick = () => store.act('counter/set', store.get('counter') - 1)
+dec.onclick = () => store.event('dec/clicked')
 
 /* react to counter changes */
 let counterDisp = document.getElementById('counter')
@@ -111,7 +111,8 @@ function reducer(state, type, payload) {
 }
 function reduceCounter(counter, type, payload) {
   switch(type) {
-    case 'counter/set': return payload
+    case 'inc/clicked': return counter + 1
+    case 'dec/clicked': return counter - 1
     default: return counter
   }
 }

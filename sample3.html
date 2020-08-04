@@ -83,10 +83,10 @@ const store = dux.createStore(reducer, {
 //store.react(() => console.log(store.get()))
 
 let inc = document.getElementById('inc')
-inc.onclick = () => store.act('counter/set', store.get('counter') + 1)
+inc.onclick = () => store.event('inc/clicked')
 
 let dec = document.getElementById('dec')
-dec.onclick = () => store.act('counter/set', store.get('counter') - 1)
+dec.onclick = () => store.event('dec/clicked')
 
 let counterDisp = document.getElementById('counter')
 store.react('counter', counter => {
@@ -98,7 +98,7 @@ block.className = 'block'
 store.react('current', current => {
   block.style.backgroundColor = getCurrentColor(store)
 })
-block.onclick = () => store.act('current/set', store.get('current') + 1)
+block.onclick = () => store.event('block/clicked')
 
 let blockDisp = document.getElementById('blocks')
 let substore
@@ -131,13 +131,15 @@ function reducer(state, type, payload) {
 }
 function reduceCounter(counter, type, payload) {
   switch(type) {
-    case 'counter/set': return payload
+    case 'inc/clicked': return counter + 1
+    case 'dec/clicked': return counter - 1
+    case 'devtools/counter/set': return payload
     default: return counter
   }
 }
 function reduceCurrent(current, type, payload) {
   switch(type) {
-    case 'current/set': return payload
+    case 'block/clicked': return current + 1
     default: return current
   }
 }

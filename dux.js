@@ -17,7 +17,7 @@ function createStore(reducer, initialState) {
    * Use the reducer to update the state
    * and invoke the reactors
    */
-  function act(type, payload) {
+  function event(type, payload) {
     let oldstate = state
     state = reducer(state, type, payload)
     invokeReactors(oldstate, state)
@@ -123,7 +123,7 @@ function createStore(reducer, initialState) {
 
     let fork_ = {
       get,
-      act,
+      event,
       react: (p, fn) => react_(p, fn, reactors),
       unreact,
       fork,
@@ -147,7 +147,7 @@ function createStore(reducer, initialState) {
 
   return {
     get,
-    act,
+    event,
     react,
     unreact,
     fork,
