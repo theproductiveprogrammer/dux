@@ -118,12 +118,18 @@ function createStore(reducer, initialState) {
   }
 
 
+  /*    way/
+   * create a sub store that references the main store
+   * for everything except reactions so that the whole
+   * group of reactions can be cleared in one go.
+   */
   function fork() {
     let reactors = {}
 
     let fork_ = {
       get,
       event,
+      eventlog,
       react: (p, fn) => react_(p, fn, reactors),
       unreact,
       fork,
@@ -135,6 +141,10 @@ function createStore(reducer, initialState) {
     return fork_
   }
 
+  /*    way/
+   * removes a sub-store so the entire group of reactions
+   * is no longer referenced
+   */
   function destroy(fork_) {
     if(!fork_) return
     for(let i = 0;i < forks.length;i++) {
