@@ -127,15 +127,25 @@ function createStore(reducer, initialState) {
    * for everything except reactions so that the whole
    * group of reactions can be cleared in one go.
    */
-  function fork() {
+  function fork(pfx) {
     let reactors = {}
 
+    let react__ = (p, fn) => react_(p, fn, reactors)
+    let get__ = get
+    let fork__ = fork
+
+    if(pfx) {
+      react__= (p,fn) => react_(`${pfx}.${p}`,fn,reactors)
+      get__ = p => get(`${pfx}.${p}`)
+      fork__ = p => fork(`${pfx}.${p}`)
+    }
+
     let fork_ = {
-      get,
+      get: get__,
       event,
-      react: (p, fn) => react_(p, fn, reactors),
+      react: react__,
       unreact,
-      fork,
+      fork: fork__,
       destroy,
 
       trace,
