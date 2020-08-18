@@ -123,9 +123,11 @@ function createStore(reducer, initialState) {
 
 
   /*    way/
-   * create a sub store that references the main store
-   * for everything except reactions so that the whole
-   * group of reactions can be cleared in one go.
+   * create a forked store that wraps around a part of
+   * the current state and simplifies the scope that
+   * a part of the program has to deal with. Forked
+   * stores also can be destroyed and clean up all
+   * their references in one go.
    */
   function fork(pfx) {
     let reactors = {}
