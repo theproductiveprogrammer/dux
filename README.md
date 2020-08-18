@@ -59,6 +59,34 @@ By convention events raised should be named like this -  `domain/event`. For exa
 store.event("todo/completed", { id: 73 })
 ```
 
+## Keeping Code Clean - Forking
+
+Having a “global” state has it’s drawbacks - it’s harder to partition your code cleanly. All the state is available and invariably tendrils of the code will start to couple with what started off as unrelated sub-systems.
+
+To help with this problem, `dux` allows you to “fork” a store:
+
+```javascript
+let substore1 = store.fork('field1')
+let substore2 = store.fork('field2.field3')
+```
+
+These stores now behave exactly like the main store except that their `get()` and `react()` methods respond as if the given sub-field of the state was the entire state.
+
+Forks are also useful in cleaning up state as we will see next.
+
+## Cleaning Reactions
+
+At some point, we will need to remove reactions. Let’s say we are showing a list of items and an item is removed. So we remove the DOM element corresponding to that item. However the ‘reaction’ that pointed to that DOM element still exists and will prevent that element from being garbage collected.
+
+If you have a few elements, of course, you can choose to ignore this small leak. However it is good practice to clean up after yourself and so you can tell `dux` you no longer need that reaction by calling the `unreact()` method.
+
+Another scenario to consider - say you display a “page” of data and want to navigate to another “page”. Instead of simply hiding the first page you may want to completely destroy it. Again you can inform `dux` that any reactions on that page aren’t needed anymore. The best way to do this is to create a `fork` of the store for the page and then simply `destroy` the fork.
+
+In summary to clean reactions you can use:
+
+1. `unreact()` which will remove the reaction, or
+2. `fork()`  the store and `destroy()` the fork to remove all reactions associated with it
+
 ## Debugging & Tracing
 
 It can be helpful for debugging to see the what exactly has happened step-by-step to get to the current point. To aid in this, `dux` provides a `trace()` function that keeps track of all events and states efficiently until you turn it off:
@@ -77,19 +105,6 @@ store.eventlog((err, log) => console.log(log))
 ...
 store.trace(false)
 ```
-
-## Cleaning Reactions
-
-At some point, we will need to remove reactions. Let’s say we are showing a list of items and an item is removed. So we remove the DOM element corresponding to that item. However the ‘reaction’ that pointed to that DOM element still exists and will prevent that element from being garbage collected.
-
-If you have a few elements, of course, you can choose to ignore this small leak. However it is good practice to clean up after yourself and so you can tell `dux` you no longer need that reaction by calling the `unreact()` method.
-
-Another scenario to consider - say you display a “page” of data and want to navigate to another “page”. Instead of simply hiding the first page you may want to completely destroy it. Again you can inform `dux` that any reactions on that page aren’t needed anymore. The best way to do this is to create a `fork` of the store for the page and then simply `destroy` the fork.
-
-In summary to clean reactions you can use:
-
-1. `unreact()` which will remove the reaction, or 
-2. `fork()`  the store and `destroy()` the fork to remove all reactions associated with it
 
 ## Samples
 
