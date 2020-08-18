@@ -15,7 +15,7 @@ $ npm install @tpp/dux
 In javascript:
 
 ```javascript
-const dux = require(""@tpp/dux")
+const dux = require("@tpp/dux")
 ```
 
 ## Usage
