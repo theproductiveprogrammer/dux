@@ -129,17 +129,17 @@ function createStore(reducer, initialState) {
    * stores also can be destroyed and clean up all
    * their references in one go.
    */
-  function fork(pfx) {
+  function fork(fld) {
     let reactors = {}
 
     let react__ = (p, fn) => react_(p, fn, reactors)
     let get__ = get
     let fork__ = fork
 
-    if(pfx) {
-      react__= (p,fn) => react_(`${pfx}.${p}`,fn,reactors)
-      get__ = p => get(`${pfx}.${p}`)
-      fork__ = p => fork(`${pfx}.${p}`)
+    if(fld) {
+      react__= (p,fn) => react_(`${fld}.${p}`,fn,reactors)
+      get__ = p => get(`${fld}.${p}`)
+      fork__ = p => fork(`${fld}.${p}`)
     }
 
     let fork_ = {
