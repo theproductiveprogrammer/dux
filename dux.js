@@ -137,7 +137,7 @@ function createStore(reducer, initialState) {
     let fork__ = fork
 
     if(fld) {
-      let wrap = p => p ? `${fld}.${p}` : fld
+      let wrap = p => (p === null || p == undefined) ? fld : `${fld}.${p}`
       get__ = p => get(wrap(p))
       fork__ = p => fork(wrap(p))
 
