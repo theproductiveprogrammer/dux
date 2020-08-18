@@ -138,9 +138,13 @@ function createStore(reducer, initialState) {
 
     if(fld) {
       let wrap = p => p ? `${fld}.${p}` : fld
-      react__= (p,fn) => react_(wrap(p),fn,reactors)
       get__ = p => get(wrap(p))
       fork__ = p => fork(wrap(p))
+
+      react__= (p,fn) => {
+        if(!fn) react_(fld, p, reactors)
+        else react_(wrap(p),fn,reactors)
+      }
     }
 
     let fork_ = {
