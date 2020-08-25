@@ -144,8 +144,8 @@ function createStore(reducer, initialState) {
       fork__ = p => fork(wrap(p))
 
       react__= (p,fn) => {
-        if(!fn) react_(fld, p, reactors)
-        else react_(wrap(p),fn,reactors)
+        if(!fn) return react_(fld, p, reactors)
+        else return react_(wrap(p),fn,reactors)
       }
     }
 
