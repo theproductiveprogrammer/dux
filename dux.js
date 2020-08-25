@@ -109,6 +109,9 @@ function createStore(reducer, initialState) {
    */
   function unreact(fn) {
     unreact_(fn, reactors)
+    for(let i = 0;i < forks.length;i++) {
+      unreact_(fn, forks[i].reactors)
+    }
   }
   function unreact_(fn, reactors) {
     for(let p in reactors) {
@@ -118,7 +121,6 @@ function createStore(reducer, initialState) {
         else reactors[p].splice(ndx, 1)
       }
     }
-    return false
   }
 
 
