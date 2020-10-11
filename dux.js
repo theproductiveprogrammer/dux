@@ -49,7 +49,13 @@ function createStore(reducer, initialState) {
     }
 
     function react_1(fns, cur) {
-      for(let i = 0;i < fns.length;i++) fns[i](cur)
+      for(let i = 0;i < fns.length;i++) {
+        try {
+          fns[i](cur)
+        } catch(e) {
+          console.error(e)
+        }
+      }
     }
   }
 
